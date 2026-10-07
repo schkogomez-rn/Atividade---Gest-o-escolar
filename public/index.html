@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcademiaPro • Sistema de Gestão Escolar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h2>AcademiaPro</h2>
+                    <span class="badge-tag">Gestão Escolar</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="9" rx="1"/>
+                        <rect x="14" y="3" width="7" height="5" rx="1"/>
+                        <rect x="14" y="12" width="7" height="9" rx="1"/>
+                        <rect x="3" y="16" width="7" height="5" rx="1"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="alunos">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Alunos</span>
+                    <span class="counter-badge" id="nav-alunos-count">-</span>
+                </button>
+                <button class="nav-item" data-tab="cursos">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>Cursos</span>
+                    <span class="counter-badge" id="nav-cursos-count">-</span>
+                </button>
+                <button class="nav-item" data-tab="turmas">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                        <path d="M9 14l2 2 4-4"/>
+                    </svg>
+                    <span>Matrículas</span>
+                    <span class="counter-badge highlight" id="nav-turmas-count">-</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="api-status-card" id="api-status-badge">
+                    <span class="status-indicator ping-live"></span>
+                    <div class="status-info">
+                        <small>Status da API</small>
+                        <strong id="api-status-text">Verificando...</strong>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-wrapper">
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="mobile-toggle-btn" id="mobileMenuBtn">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </div>
+                <div class="topbar-title">
+                    <h1 id="page-title">Visão Geral</h1>
+                    <p id="page-subtitle">Acompanhe métricas, alunos, vagas de cursos e matrículas em tempo real</p>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-secondary" id="btnRefreshAll" title="Recarregar Dados">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/>
+                            <path d="M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                        <span>Atualizar</span>
+                    </button>
+                    <button class="btn btn-primary" id="btnQuickEnroll">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Nova Matrícula</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-container">
+                <!-- TAB 1: DASHBOARD -->
+                <section class="tab-pane active" id="tab-dashboard">
+                    <!-- KPI Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-blue">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Total de Alunos</span>
+                                <h3 class="stat-value" id="kpi-total-alunos">-</h3>
+                                <span class="stat-caption">Cadastrados no sistema</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon icon-purple">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Cursos Ofertados</span>
+                                <h3 class="stat-value" id="kpi-total-cursos">-</h3>
+                                <span class="stat-caption">Disponíveis na grade</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon icon-emerald">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Matrículas Ativas</span>
+                                <h3 class="stat-value" id="kpi-total-matriculas">-</h3>
+                                <span class="stat-caption">Vínculos confirmados</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon icon-amber">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Vagas em Aberto</span>
+                                <h3 class="stat-value" id="kpi-vagas-abertas">-</h3>
+                                <span class="stat-caption" id="kpi-cursos-esgotados">0 cursos esgotados</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Banner Regra de Ouro -->
+                    <div class="regra-ouro-card">
+                        <div class="regra-ouro-icon">⚡</div>
+                        <div class="regra-ouro-content">
+                            <h4>Regra de Ouro da Aplicação</h4>
+                            <p>Ao matricular um aluno, o sistema valida automaticamente a disponibilidade de vagas com transação ACID no PostgreSQL e bloqueia matrículas duplicadas no mesmo curso.</p>
+                        </div>
+                        <button class="btn btn-light-glass" onclick="app.navigateTab('turmas')">Ir para Matrículas &rarr;</button>
+                    </div>
+
+                    <!-- Dashboard Sections Grid -->
+                    <div class="dashboard-split-grid">
+                        <!-- Recent Enrollments -->
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title-group">
+                                    <h3>Últimas Matrículas Realizadas</h3>
+                                    <p>Atividades recentes registradas no banco de dados</p>
+                                </div>
+                                <button class="btn btn-sm btn-ghost" onclick="app.navigateTab('turmas')">Ver todas</button>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Aluno</th>
+                                                <th>Curso</th>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dash-recent-matriculas">
+                                            <tr><td colspan="4" class="text-center muted">Carregando matrículas...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cursos Vagas Status -->
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title-group">
+                                    <h3>Disponibilidade por Curso</h3>
+                                    <p>Saldo de vagas atualizado em tempo real</p>
+                                </div>
+                                <button class="btn btn-sm btn-ghost" onclick="app.navigateTab('cursos')">Gerenciar</button>
+                            </div>
+                            <div class="panel-body">
+                                <div class="course-vagas-list" id="dash-courses-vagas">
+                                    <p class="text-center muted">Carregando cursos...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: ALUNOS -->
+                <section class="tab-pane" id="tab-alunos">
+                    <div class="panel">
+                        <div class="panel-header flex-between">
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <input type="text" id="searchAlunos" placeholder="Buscar aluno por nome ou e-mail...">
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" id="btnNovoAluno">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Cadastrar Aluno</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome Completo</th>
+                                            <th>E-mail</th>
+                                            <th>Nascimento</th>
+                                            <th class="text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="alunosTableBody">
+                                        <tr><td colspan="5" class="text-center muted">Carregando alunos...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Paginação -->
+                            <div class="pagination-footer" id="alunosPagination">
+                                <span class="pagination-info" id="alunosPaginationInfo">Mostrando 0 alunos</span>
+                                <div class="pagination-controls">
+                                    <button class="btn btn-sm btn-secondary" id="btnAlunoPrev" disabled>&larr; Anterior</button>
+                                    <span class="page-indicator" id="alunoPageIndicator">Página 1</span>
+                                    <button class="btn btn-sm btn-secondary" id="btnAlunoNext" disabled>Próxima &rarr;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: CURSOS -->
+                <section class="tab-pane" id="tab-cursos">
+                    <div class="panel">
+                        <div class="panel-header flex-between">
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <input type="text" id="searchCursos" placeholder="Filtrar cursos...">
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" id="btnNovoCurso">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Criar Novo Curso</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="courses-card-grid" id="cursosCardsContainer">
+                                <p class="muted">Carregando cursos...</p>
+                            </div>
+
+                            <!-- Paginação Cursos -->
+                            <div class="pagination-footer" id="cursosPagination">
+                                <span class="pagination-info" id="cursosPaginationInfo">Mostrando 0 cursos</span>
+                                <div class="pagination-controls">
+                                    <button class="btn btn-sm btn-secondary" id="btnCursoPrev" disabled>&larr; Anterior</button>
+                                    <span class="page-indicator" id="cursoPageIndicator">Página 1</span>
+                                    <button class="btn btn-sm btn-secondary" id="btnCursoNext" disabled>Próxima &rarr;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: MATRÍCULAS / TURMAS -->
+                <section class="tab-pane" id="tab-turmas">
+                    <div class="enrollment-grid">
+                        <!-- Formulário de Matrícula (Regra de Ouro) -->
+                        <div class="panel form-panel">
+                            <div class="panel-header">
+                                <div class="panel-title-group">
+                                    <h3>Nova Matrícula</h3>
+                                    <p>Vincule um aluno a um curso com validação de vaga</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <form id="formMatricular" class="form-vertical">
+                                    <div class="form-group">
+                                        <label for="selectAlunoMatricula">Selecione o Aluno <span class="req">*</span></label>
+                                        <select id="selectAlunoMatricula" required>
+                                            <option value="">Carregando lista de alunos...</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="selectCursoMatricula">Selecione o Curso <span class="req">*</span></label>
+                                        <select id="selectCursoMatricula" required>
+                                            <option value="">Carregando lista de cursos...</option>
+                                        </select>
+                                        <div class="vagas-preview-info" id="vagasPreview">
+                                            Selecione um curso para verificar o número de vagas.
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary btn-block" id="btnSubmitMatricula">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            <span>Confirmar Matrícula</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Matrículas Ativas -->
+                        <div class="panel list-panel">
+                            <div class="panel-header flex-between">
+                                <div class="panel-title-group">
+                                    <h3>Matrículas Cadastradas</h3>
+                                    <p>Lista consolidada com relacionamentos</p>
+                                </div>
+                                <div class="search-box small">
+                                    <input type="text" id="searchMatriculas" placeholder="Filtrar matrículas...">
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Aluno</th>
+                                                <th>Curso</th>
+                                                <th>Data Matrícula</th>
+                                                <th class="text-right">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="turmasTableBody">
+                                            <tr><td colspan="5" class="text-center muted">Carregando matrículas...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="pagination-footer" id="turmasPagination">
+                                    <span class="pagination-info" id="turmasPaginationInfo">Mostrando 0 matrículas</span>
+                                    <div class="pagination-controls">
+                                        <button class="btn btn-sm btn-secondary" id="btnTurmaPrev" disabled>&larr; Anterior</button>
+                                        <span class="page-indicator" id="turmaPageIndicator">Página 1</span>
+                                        <button class="btn btn-sm btn-secondary" id="btnTurmaNext" disabled>Próxima &rarr;</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: CRIAR / EDITAR ALUNO -->
+    <div class="modal-backdrop" id="modalAluno">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalAlunoTitle">Cadastrar Novo Aluno</h3>
+                <button class="btn-close" onclick="app.closeModal('modalAluno')">&times;</button>
+            </div>
+            <form id="formAluno">
+                <input type="hidden" id="alunoId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="alunoNome">Nome Completo <span class="req">*</span></label>
+                        <input type="text" id="alunoNome" placeholder="Ex: Lucas Gabriel Silveira" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="alunoEmail">E-mail <span class="req">*</span></label>
+                        <input type="email" id="alunoEmail" placeholder="Ex: lucas@escola.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="alunoNascimento">Data de Nascimento</label>
+                        <input type="date" id="alunoNascimento">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalAluno')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarAluno">Salvar Aluno</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CRIAR / EDITAR CURSO -->
+    <div class="modal-backdrop" id="modalCurso">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalCursoTitle">Criar Novo Curso</h3>
+                <button class="btn-close" onclick="app.closeModal('modalCurso')">&times;</button>
+            </div>
+            <form id="formCurso">
+                <input type="hidden" id="cursoId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="cursoNome">Nome do Curso <span class="req">*</span></label>
+                        <input type="text" id="cursoNome" placeholder="Ex: Arquitetura de Microsserviços" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cursoDescricao">Descrição do Curso</label>
+                        <textarea id="cursoDescricao" rows="3" placeholder="Resumo dos tópicos e objetivos..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cursoVagas">Quantidade de Vagas <span class="req">*</span></label>
+                        <input type="number" id="cursoVagas" min="0" placeholder="Ex: 25" required>
+                        <small class="form-help">Para novo curso, o valor deve ser maior que 0.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalCurso')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarCurso">Salvar Curso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: HISTÓRICO DE CURSOS DO ALUNO -->
+    <div class="modal-backdrop" id="modalHistoricoAluno">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h3 id="historicoAlunoNome">Matrículas do Aluno</h3>
+                    <p class="muted" id="historicoAlunoEmail">Detalhes das inscrições ativas</p>
+                </div>
+                <button class="btn-close" onclick="app.closeModal('modalHistoricoAluno')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="historicoAlunoList" class="historico-container">
+                    <!-- Gerado dinamicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalHistoricoAluno')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIRMAÇÃO DE EXCLUSÃO -->
+    <div class="modal-backdrop" id="modalConfirmDelete">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar Remoção</h3>
+                <button class="btn-close" onclick="app.closeModal('modalConfirmDelete')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmDeleteMessage">Tem certeza que deseja excluir este item?</p>
+                <div class="alert-box alert-warning" id="confirmDeleteWarning" style="display:none; margin-top: 12px;">
+                    ⚠️ Atenção: Esta ação é definitiva e removerá dados vinculados.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalConfirmDelete')">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDeleteAction">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
