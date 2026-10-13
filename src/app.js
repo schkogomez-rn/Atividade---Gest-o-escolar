@@ -4,6 +4,7 @@ const path = require('path');
 const alunoRoutes = require('./routes/alunoRoutes');
 const cursoRoutes = require('./routes/cursoRoutes');
 const turmaRoutes = require('./routes/turmaRoutes');
+const contaRoutes = require('./routes/contaRoutes');
 
 // ============================================================
 // CONFIGURAÇÃO DO EXPRESS
@@ -46,6 +47,7 @@ app.get('/', (req, res) => {
             alunos: '/alunos',
             cursos: '/cursos',
             turmas: '/turmas',
+            contas: '/contas',
         },
     });
 });
@@ -54,6 +56,7 @@ app.get('/', (req, res) => {
 app.use('/alunos', alunoRoutes);
 app.use('/cursos', cursoRoutes);
 app.use('/turmas', turmaRoutes);
+app.use('/contas', contaRoutes);
 
 // --- MIDDLEWARE DE ERRO 404 ---
 // Captura qualquer rota não encontrada

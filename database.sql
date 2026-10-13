@@ -11,6 +11,17 @@
 DROP TABLE IF EXISTS turmas CASCADE;
 DROP TABLE IF EXISTS alunos CASCADE;
 DROP TABLE IF EXISTS cursos CASCADE;
+DROP TABLE IF EXISTS contas CASCADE;
+
+-- ============================================================
+-- TABELA: contas (autenticação com bcrypt)
+-- ============================================================
+CREATE TABLE contas (
+    id          SERIAL PRIMARY KEY,
+    nome        VARCHAR(100) NOT NULL,
+    email       VARCHAR(100) UNIQUE NOT NULL,
+    senha_hash  VARCHAR(255) NOT NULL
+);
 
 -- ============================================================
 -- TABELA: cursos
