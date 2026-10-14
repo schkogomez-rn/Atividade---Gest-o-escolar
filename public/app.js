@@ -126,6 +126,17 @@ class CockpitApp {
                 document.querySelectorAll('.modal-backdrop.show').forEach(m => m.classList.remove('show'));
             }
         });
+
+        // Formulários de Contas
+        document.getElementById('formRegistrar').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegistrar();
+        });
+
+        document.getElementById('formLogin').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
+        });
     }
 
     switchView(viewName) {
@@ -136,9 +147,10 @@ class CockpitApp {
 
         const views = {
             cockpit: 'viewCockpit',
-            alunos: 'viewAlunos',
-            cursos: 'viewCursos',
-            turmas: 'viewTurmas'
+            alunos:  'viewAlunos',
+            cursos:  'viewCursos',
+            turmas:  'viewTurmas',
+            contas:  'viewContas'
         };
 
         document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
@@ -688,6 +700,84 @@ class CockpitApp {
             }
         };
         this.openModal('modalConfirmDelete');
+    }
+
+    // ============================================================
+    // CONTAS: REGISTRAR E LOGIN (bcrypt)
+    // ============================================================
+    async handleRegistrar() {
+        const nome  = document.getElementById('registrarNome').value.trim();
+        const email = document.getElementById('registrarEmail').value.trim();
+        const senha = document.getElementById('registrarSenha').value;
+
+        const btn    = document.getElementById('btnRegistrar');
+        const result = document.getElementById('registrarResult');
+
+        btn.disabled = true;
+        btn.textContent = 'Criando conta...';
+        result.style.display = 'none';
+
+        try {
+            const res  = await fetch(`${this.apiBase}/contas/registrar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, senha })
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.mensagem || 'Falha ao criar conta');
+
+            result.className = 'conta-result success';
+            result.textContent = `✅ Conta criada! ID: #${data.id} — ${data.nome} (${data.email})`;
+            result.style.display = 'block';
+            document.getElementById('formRegistrar').reset();
+            this.showToast('Conta criada com sucesso!', 'success');
+        } catch (err) {
+            result.className = 'conta-result error';
+            result.textContent = `❌ ${err.message}`;
+            result.style.display = 'block';
+            this.showToast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Criar Conta';
+        }
+    }
+
+    async handleLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const senha = document.getElementById('loginSenha').value;
+
+        const btn    = document.getElementById('btnLogin');
+        const result = document.getElementById('loginResult');
+
+        btn.disabled = true;
+        btn.textContent = 'Verificando...';
+        result.style.display = 'none';
+
+        try {
+            const res  = await fetch(`${this.apiBase}/contas/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.mensagem || 'Credenciais inválidas');
+
+            result.className = 'conta-result success';
+            result.textContent = `✅ ${data.mensagem}`;
+            result.style.display = 'block';
+            document.getElementById('formLogin').reset();
+            this.showToast('Login realizado!', 'success');
+        } catch (err) {
+            result.className = 'conta-result error';
+            result.textContent = `❌ ${err.message}`;
+            result.style.display = 'block';
+            this.showToast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Entrar';
+        }
     }
 
     // ============================================================

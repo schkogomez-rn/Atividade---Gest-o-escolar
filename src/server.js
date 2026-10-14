@@ -17,5 +17,7 @@ app.listen(PORT, () => {
     console.log(`📚  Alunos:              http://localhost:${PORT}/alunos`);
     console.log(`📖  Cursos:              http://localhost:${PORT}/cursos`);
     console.log(`🎓  Turmas/Matrículas:   http://localhost:${PORT}/turmas`);
+    console.log(`👤  Contas (cadastro):   http://localhost:${PORT}/contas/registrar`);
+    console.log(`🔐  Contas (login):      http://localhost:${PORT}/contas/login`);
     console.log('================================================');
 });

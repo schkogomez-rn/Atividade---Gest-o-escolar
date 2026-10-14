@@ -84,6 +84,13 @@
                         </svg>
                         <span>Matrículas</span>
                     </button>
+                    <button class="view-btn" data-view="contas" title="Gerenciar Contas">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <span>Contas</span>
+                    </button>
                 </div>
 
                 <div class="api-status-badge" id="apiStatusBadge" title="Status da conexão com o backend Node.js">
@@ -353,6 +360,121 @@
                 </div>
             </div>
 
+            <!-- ============================================== -->
+            <!-- VISTA 5: CONTAS (REGISTRAR / LOGIN)            -->
+            <!-- ============================================== -->
+            <div class="view-panel" id="viewContas">
+                <div class="full-view-panel">
+                    <div class="panel-header-full">
+                        <div>
+                            <h2>🔐 Gerenciar Contas</h2>
+                            <p class="muted">Cadastre e autentique usuários com senhas criptografadas via bcrypt</p>
+                        </div>
+                    </div>
+
+                    <div class="contas-grid">
+
+                        <!-- CARD: REGISTRAR -->
+                        <div class="conta-card">
+                            <div class="conta-card-header registrar-header">
+                                <div class="conta-card-icon">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <line x1="19" y1="8" x2="19" y2="14"/>
+                                        <line x1="22" y1="11" x2="16" y2="11"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Registrar Conta</h3>
+                                    <p class="muted text-xs">Senha armazenada como hash bcrypt (custo 10)</p>
+                                </div>
+                            </div>
+                            <form id="formRegistrar" class="conta-form">
+                                <div class="form-group">
+                                    <label for="registrarNome">Nome Completo <span class="req">*</span></label>
+                                    <input type="text" id="registrarNome" required placeholder="Ex: Maria Silva">
+                                </div>
+                                <div class="form-group">
+                                    <label for="registrarEmail">E-mail <span class="req">*</span></label>
+                                    <input type="email" id="registrarEmail" required placeholder="maria@email.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="registrarSenha">Senha <span class="req">*</span></label>
+                                    <input type="password" id="registrarSenha" required placeholder="Mínimo 6 caracteres" minlength="6">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" id="btnRegistrar">Criar Conta</button>
+                            </form>
+                            <div id="registrarResult" class="conta-result" style="display:none;"></div>
+                        </div>
+
+                        <!-- CARD: LOGIN -->
+                        <div class="conta-card">
+                            <div class="conta-card-header login-header">
+                                <div class="conta-card-icon">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                        <polyline points="10 17 15 12 10 7"/>
+                                        <line x1="15" y1="12" x2="3" y2="12"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Login</h3>
+                                    <p class="muted text-xs">bcrypt.compare valida sem revelar a senha original</p>
+                                </div>
+                            </div>
+                            <form id="formLogin" class="conta-form">
+                                <div class="form-group">
+                                    <label for="loginEmail">E-mail <span class="req">*</span></label>
+                                    <input type="email" id="loginEmail" required placeholder="maria@email.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="loginSenha">Senha <span class="req">*</span></label>
+                                    <input type="password" id="loginSenha" required placeholder="Sua senha">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" id="btnLogin">Entrar</button>
+                            </form>
+                            <div id="loginResult" class="conta-result" style="display:none;"></div>
+                        </div>
+
+                        <!-- CARD: INFO BCRYPT -->
+                        <div class="conta-card bcrypt-info-card">
+                            <div class="conta-card-header info-header">
+                                <div class="conta-card-icon">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Como o bcrypt protege</h3>
+                                    <p class="muted text-xs">Hash irreversível com Salt automático</p>
+                                </div>
+                            </div>
+                            <div class="bcrypt-anatomy">
+                                <div class="anatomy-label">Anatomia do Hash gerado:</div>
+                                <div class="anatomy-hash">
+                                    <span class="hash-part version">$2b$</span><span class="hash-part cost">10$</span><span class="hash-part salt">wE3xK9mNpQ7rT2yU</span><span class="hash-part digest">AbCdEfGhIjKlMnOpQrStUv</span>
+                                </div>
+                                <div class="anatomy-legend">
+                                    <span><span class="dot version"></span>Versão</span>
+                                    <span><span class="dot cost"></span>Custo</span>
+                                    <span><span class="dot salt"></span>Salt (22 chars)</span>
+                                    <span><span class="dot digest"></span>Hash Final</span>
+                                </div>
+                            </div>
+                            <ul class="bcrypt-tips">
+                                <li>🔒 <strong>Irreversível:</strong> ninguém consegue reverter o hash</li>
+                                <li>🧂 <strong>Salt único:</strong> mesma senha → hashes diferentes</li>
+                                <li>🐢 <strong>Custo 10:</strong> lento por design, frustra ataques de força bruta</li>
+                                <li>🌈 <strong>Rainbow Tables:</strong> inúteis graças ao salt automático</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -459,6 +581,90 @@
 
     <!-- TOAST CONTAINER -->
     <div class="toast-shelf" id="toastShelf"></div>
+
+    <style>
+    /* ===== CONTAS VIEW ===== */
+    .contas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        padding: 4px 2px;
+    }
+    @media (max-width: 1100px) { .contas-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px)  { .contas-grid { grid-template-columns: 1fr; } }
+
+    .conta-card {
+        background: var(--surface-2, #1e1e2e);
+        border: 1px solid var(--border, rgba(255,255,255,.08));
+        border-radius: 12px;
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .conta-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border, rgba(255,255,255,.07));
+    }
+    .conta-card-icon {
+        width: 44px; height: 44px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .registrar-header .conta-card-icon { background: rgba(99,102,241,.18); color: #818cf8; }
+    .login-header    .conta-card-icon { background: rgba(16,185,129,.15); color: #34d399; }
+    .info-header     .conta-card-icon { background: rgba(245,158,11,.15); color: #fbbf24; }
+
+    .conta-form { display: flex; flex-direction: column; gap: 12px; }
+    .conta-form .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .conta-form label { font-size: 12px; font-weight: 600; opacity: .8; }
+    .conta-form input {
+        background: var(--surface-3, rgba(255,255,255,.05));
+        border: 1px solid var(--border, rgba(255,255,255,.1));
+        border-radius: 7px;
+        padding: 9px 12px;
+        color: inherit;
+        font-size: 13px;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color .2s;
+    }
+    .conta-form input:focus { outline: none; border-color: #818cf8; }
+    .btn-block { width: 100%; margin-top: 4px; }
+
+    .conta-result {
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 12.5px;
+        font-weight: 500;
+        animation: fadeIn .3s ease;
+    }
+    .conta-result.success { background: rgba(16,185,129,.15); border: 1px solid rgba(52,211,153,.3); color: #34d399; }
+    .conta-result.error   { background: rgba(239,68,68,.12);  border: 1px solid rgba(239,68,68,.3);  color: #f87171; }
+
+    /* Anatomy */
+    .bcrypt-anatomy { background: rgba(0,0,0,.25); border-radius: 8px; padding: 14px; }
+    .anatomy-label { font-size: 11px; opacity: .55; margin-bottom: 8px; }
+    .anatomy-hash  { font-family: var(--font-mono, monospace); font-size: 12px; word-break: break-all; line-height: 1.6; }
+    .hash-part.version { color: #818cf8; }
+    .hash-part.cost    { color: #fbbf24; }
+    .hash-part.salt    { color: #34d399; }
+    .hash-part.digest  { color: #f87171; }
+    .anatomy-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; opacity: .75; }
+    .anatomy-legend span { display: flex; align-items: center; gap: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot.version { background: #818cf8; }
+    .dot.cost    { background: #fbbf24; }
+    .dot.salt    { background: #34d399; }
+    .dot.digest  { background: #f87171; }
+
+    .bcrypt-tips { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
+    .bcrypt-tips li { font-size: 12.5px; opacity: .85; }
+    </style>
 
     <script src="app.js"></script>
 </body>
