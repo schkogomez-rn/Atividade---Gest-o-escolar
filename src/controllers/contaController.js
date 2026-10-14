@@ -1,5 +1,6 @@
 const ContaRepository = require('../repositories/contaRepository');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // ============================================================
 // CONTROLADOR: Contas
@@ -32,22 +33,47 @@ const login = async (req, res) => {
     const { email, senha } = req.body;
 
     // 1. Busca se o e-mail existe no banco
-    const conta = await ContaRepository.buscarContaPorEmail(email);
-    if (!conta) {
+    const contaEncontrada = await ContaRepository.buscarContaPorEmail(email);
+    if (!contaEncontrada) {
         // Por segurança, não informamos qual campo está errado
         return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
     }
 
     // 2. Compara a senha digitada com o hash do banco
     //    O bcrypt extrai o Salt automaticamente do hash armazenado
-    const senhaValida = await bcrypt.compare(senha, conta.senha_hash);
+    const senhaValida = await bcrypt.compare(senha, contaEncontrada.senha_hash);
 
     if (!senhaValida) {
         return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
     }
 
-    // 3. Credenciais corretas — Login realizado!
-    res.json({ mensagem: 'Login realizado com sucesso! Bem-vindo(a).' });
+    // 3. A EMISSÃO DO CRACHÁ (Token JWT)
+    // O primeiro parâmetro é o "Payload" (o que vai escrito no crachá. Ex: o ID do usuário).
+    // O segundo é o carimbo oficial guardado no .env.
+    // O terceiro é a validade do crachá (ex: expira em 1 hora).
+    const token = jwt.sign(
+        { id: contaEncontrada.id }, 
+        process.env.JWT_SECRET, 
+        { expiresIn: '10h' }
+    );
+
+    // Agora devolvemos o crachá para o usuário guardar no bolso (front-end)
+    res.json({ 
+        mensagem: 'Login realizado com sucesso!', 
+        token: token 
+    });
 };
 
-module.exports = { registrar, login };
+// 🔒 SALA RESTRITA: Rota de Perfil
+const verPerfil = async (req, res) => {
+    // O segurança (middleware) já fez o trabalho duro e pendurou o ID do usuário no "req"
+    const id = req.usuario_id;
+    
+    // Busca os dados completos no banco (reaproveitando a função do repositório)
+    const dadosUsuario = await ContaRepository.buscarContaPorId(id);
+    
+    res.json(dadosUsuario);
+};
+
+module.exports = { registrar, login, verPerfil };
+

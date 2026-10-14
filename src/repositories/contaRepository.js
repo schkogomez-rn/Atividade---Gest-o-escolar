@@ -20,4 +20,12 @@ const buscarContaPorEmail = async (email) => {
     return resultado.rows[0];
 };
 
-module.exports = { criarConta, buscarContaPorEmail };
+// Busca a conta pelo ID (para ver perfil, sem expor a senha)
+const buscarContaPorId = async (id) => {
+    const sql = 'SELECT id, nome, email FROM contas WHERE id = $1';
+    const resultado = await pool.query(sql, [id]);
+    return resultado.rows[0];
+};
+
+module.exports = { criarConta, buscarContaPorEmail, buscarContaPorId };
+
