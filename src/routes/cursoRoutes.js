@@ -1,24 +1,26 @@
 const { Router } = require('express');
 const cursoController = require('../controllers/cursoController');
 
+// Importa os dois seguranças (Middlewares)
+const authMiddleware = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
+
 // ============================================================
-// CAMADA DE ROTAS - Cursos
-// Responsabilidade: mapear as URLs HTTP para os controllers.
-// NÃO contém lógica de negócio.
+// CAMADA DE ROTAS - Cursos (Protegidas por RBAC)
 // ============================================================
 
 const router = Router();
 
-// GET    /cursos          → Lista todos os cursos (paginação)
-// POST   /cursos          → Cria um novo curso
-// GET    /cursos/:id      → Busca curso por ID
-// PUT    /cursos/:id      → Atualiza curso por ID
-// DELETE /cursos/:id      → Remove curso por ID
+// Todas as rotas de cursos exigem autenticação (1º Segurança)
+router.use(authMiddleware);
 
-router.get('/',     cursoController.listarCursos);
-router.post('/',    cursoController.criarCurso);
-router.get('/:id',  cursoController.buscarCurso);
-router.put('/:id',  cursoController.atualizarCurso);
-router.delete('/:id', cursoController.deletarCurso);
+// --- Consulta: Qualquer usuário com crachá válido (admin, secretaria, professor) ---
+router.get('/',    cursoController.listarCursos);
+router.get('/:id', cursoController.buscarCurso);
+
+// --- Modificações: Exclusivo para o cargo 'admin' (2º Segurança) ---
+router.post('/',      roleMiddleware('admin'), cursoController.criarCurso);
+router.put('/:id',    roleMiddleware('admin'), cursoController.atualizarCurso);
+router.delete('/:id', roleMiddleware('admin'), cursoController.deletarCurso);
 
 module.exports = router;

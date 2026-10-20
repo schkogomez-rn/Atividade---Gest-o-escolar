@@ -1,24 +1,28 @@
 const { Router } = require('express');
 const alunoController = require('../controllers/alunoController');
 
+// Importa os dois seguranças (Middlewares)
+const authMiddleware = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
+
 // ============================================================
-// CAMADA DE ROTAS - Alunos
-// Responsabilidade: mapear as URLs HTTP para os controllers.
-// NÃO contém lógica de negócio.
+// CAMADA DE ROTAS - Alunos (Protegidas por RBAC)
 // ============================================================
 
 const router = Router();
 
-// GET    /alunos          → Lista todos os alunos (paginação)
-// POST   /alunos          → Cria um novo aluno
-// GET    /alunos/:id      → Busca aluno por ID
-// PUT    /alunos/:id      → Atualiza aluno por ID
-// DELETE /alunos/:id      → Remove aluno por ID
+// Todas as rotas de alunos exigem autenticação (1º Segurança)
+router.use(authMiddleware);
 
-router.get('/',     alunoController.listarAlunos);
-router.post('/',    alunoController.criarAluno);
-router.get('/:id',  alunoController.buscarAluno);
-router.put('/:id',  alunoController.atualizarAluno);
-router.delete('/:id', alunoController.deletarAluno);
+// --- Consulta: Qualquer usuário com crachá válido (admin, secretaria, professor) ---
+router.get('/',    alunoController.listarAlunos);
+router.get('/:id', alunoController.buscarAluno);
+
+// --- Criação e Edição: Permitido para 'admin' e 'secretaria' ---
+router.post('/',   roleMiddleware('admin', 'secretaria'), alunoController.criarAluno);
+router.put('/:id', roleMiddleware('admin', 'secretaria'), alunoController.atualizarAluno);
+
+// --- Exclusão: Exclusivo para 'admin' ---
+router.delete('/:id', roleMiddleware('admin'), alunoController.deletarAluno);
 
 module.exports = router;

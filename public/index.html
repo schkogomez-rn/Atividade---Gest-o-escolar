@@ -10,7 +10,109 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
+
+    <!-- ============================================== -->
+    <!-- TELA DE LOGIN (ENTRADA OBRIGATÓRIA DO SISTEMA) -->
+    <!-- ============================================== -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-bg-effects">
+            <div class="login-orb orb-1"></div>
+            <div class="login-orb orb-2"></div>
+            <div class="login-orb orb-3"></div>
+        </div>
+
+        <div class="login-container">
+            <!-- Logo e Boas-Vindas -->
+            <div class="login-branding">
+                <div class="login-logo-icon">
+                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                </div>
+                <h1 class="login-title">Academia<span>Pro</span></h1>
+                <p class="login-subtitle">Sistema de Gestão Escolar</p>
+            </div>
+
+            <!-- Card de Login -->
+            <div class="login-card">
+                <div class="login-card-header">
+                    <h2>Entrar no Sistema</h2>
+                    <p class="muted">Acesso exclusivo para usuários cadastrados</p>
+                </div>
+
+                <form id="formLoginScreen" class="login-form">
+                    <div class="login-field">
+                        <label for="loginScreenEmail">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            E-mail
+                        </label>
+                        <input type="email" id="loginScreenEmail" required placeholder="seu.email@escola.com" autocomplete="email">
+                    </div>
+
+                    <div class="login-field">
+                        <label for="loginScreenSenha">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            Senha
+                        </label>
+                        <input type="password" id="loginScreenSenha" required placeholder="••••••••" autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" class="login-submit-btn" id="btnLoginScreen">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
+                        </svg>
+                        Entrar
+                    </button>
+
+                    <div id="loginScreenError" class="login-error" style="display:none;"></div>
+                </form>
+
+                <!-- Atalhos Rápidos para Teste -->
+                <div class="login-quick-access">
+                    <span class="quick-access-label">⚡ Acesso rápido (contas de teste):</span>
+                    <div class="quick-access-grid">
+                        <button type="button" class="quick-access-btn qa-admin" onclick="app.quickLoginScreen('admin@escola.com', 'senha123')" title="admin@escola.com / senha123">
+                            <span class="qa-icon">👑</span>
+                            <span class="qa-info">
+                                <strong>Administrador</strong>
+                                <small>Controle total</small>
+                            </span>
+                        </button>
+                        <button type="button" class="quick-access-btn qa-secretaria" onclick="app.quickLoginScreen('secretaria@escola.com', 'senha123')" title="secretaria@escola.com / senha123">
+                            <span class="qa-icon">📋</span>
+                            <span class="qa-info">
+                                <strong>Secretaria</strong>
+                                <small>Alunos & Matrículas</small>
+                            </span>
+                        </button>
+                        <button type="button" class="quick-access-btn qa-professor" onclick="app.quickLoginScreen('professor@escola.com', 'senha123')" title="professor@escola.com / senha123">
+                            <span class="qa-icon">🎓</span>
+                            <span class="qa-info">
+                                <strong>Professor</strong>
+                                <small>Consulta geral</small>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="login-footer-text">Senha padrão para contas de teste: <code>senha123</code></p>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SISTEMA PRINCIPAL (VISÍVEL APÓS LOGIN)        -->
+    <!-- ============================================== -->
+    <div class="app-container" id="appContainer" style="display: none;">
         <!-- TOP NAVBAR COMPACTA -->
         <header class="navbar">
             <div class="navbar-brand">
@@ -84,14 +186,18 @@
                         </svg>
                         <span>Matrículas</span>
                     </button>
-                    <button class="view-btn" data-view="contas" title="Gerenciar Contas">
+                    <!-- Aba Contas: visível apenas para admin -->
+                    <button class="view-btn rbac-admin-only" data-view="contas" title="Gerenciar Contas & RBAC" style="display:none;">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
-                        <span>Contas</span>
+                        <span>Contas & RBAC</span>
                     </button>
                 </div>
+
+                <!-- CRACHÁ DO USUÁRIO LOGADO -->
+                <div id="userProfileArea" class="user-profile-slot"></div>
 
                 <div class="api-status-badge" id="apiStatusBadge" title="Status da conexão com o backend Node.js">
                     <span class="status-pulse"></span>
@@ -108,14 +214,14 @@
             </div>
         </header>
 
-        <!-- BANNER COMPACTO: REGRA DE OURO -->
+        <!-- BANNER COMPACTO: PERFIL ATIVO -->
         <div class="regra-ouro-ribbon">
             <div class="ribbon-text">
-                <span class="flash-tag">⚡ REGRA DE OURO ATIVA</span>
-                <span>Matrículas realizam transação ACID no PostgreSQL: decrementam vagas e barram conflitos/duplicatas em tempo real.</span>
+                <span class="flash-tag">⚡ RBAC ATIVO</span>
+                <span id="ribbonPerfilInfo">Carregando permissões...</span>
             </div>
             <div class="ribbon-buttons">
-                <button class="btn btn-xs btn-primary" onclick="app.quickOpenEnrollModal()">+ Matricular Rápido</button>
+                <button class="btn btn-xs btn-primary rbac-enroll" onclick="app.quickOpenEnrollModal()">+ Matricular Rápido</button>
             </div>
         </div>
 
@@ -143,7 +249,7 @@
                                     </svg>
                                     <input type="text" id="cockpitSearchAlunos" placeholder="Filtrar aluno...">
                                 </div>
-                                <button class="btn btn-xs btn-primary" onclick="app.openAlunoModal()" title="Novo Aluno">+</button>
+                                <button class="btn btn-xs btn-primary rbac-aluno-create" onclick="app.openAlunoModal()" title="Novo Aluno">+</button>
                             </div>
                         </div>
 
@@ -187,7 +293,7 @@
                                     </svg>
                                     <input type="text" id="cockpitSearchCursos" placeholder="Filtrar curso...">
                                 </div>
-                                <button class="btn btn-xs btn-primary" onclick="app.openCursoModal()" title="Novo Curso">+</button>
+                                <button class="btn btn-xs btn-primary rbac-curso-create" onclick="app.openCursoModal()" title="Novo Curso">+</button>
                             </div>
                         </div>
 
@@ -208,7 +314,7 @@
                     <!-- COLUNA DIREITA: MATRÍCULAS (AÇÃO DIRETA + HISTÓRICO) -->
                     <section class="card-column turmas-column">
                         <!-- Card de Ação Rápida de Matrícula -->
-                        <div class="quick-enroll-box">
+                        <div class="quick-enroll-box rbac-enroll">
                             <div class="quick-enroll-head">
                                 <h4>Efetivar Matrícula</h4>
                                 <span class="badge-gold">Validação ACID</span>
@@ -285,7 +391,7 @@
                         </div>
                         <div class="header-tools-right">
                             <input type="text" id="fullSearchAlunos" class="search-input-lg" placeholder="Buscar por nome ou e-mail...">
-                            <button class="btn btn-primary" onclick="app.openAlunoModal()">+ Novo Aluno</button>
+                            <button class="btn btn-primary rbac-aluno-create" onclick="app.openAlunoModal()">+ Novo Aluno</button>
                         </div>
                     </div>
                     <div class="full-table-wrap">
@@ -318,7 +424,7 @@
                         </div>
                         <div class="header-tools-right">
                             <input type="text" id="fullSearchCursos" class="search-input-lg" placeholder="Filtrar curso...">
-                            <button class="btn btn-primary" onclick="app.openCursoModal()">+ Novo Curso</button>
+                            <button class="btn btn-primary rbac-curso-create" onclick="app.openCursoModal()">+ Novo Curso</button>
                         </div>
                     </div>
                     <div class="full-courses-grid" id="fullCursosGrid"></div>
@@ -338,7 +444,7 @@
                         </div>
                         <div class="header-tools-right">
                             <input type="text" id="fullSearchTurmas" class="search-input-lg" placeholder="Filtrar matrículas...">
-                            <button class="btn btn-primary" onclick="app.quickOpenEnrollModal()">+ Nova Matrícula</button>
+                            <button class="btn btn-primary rbac-enroll" onclick="app.quickOpenEnrollModal()">+ Nova Matrícula</button>
                         </div>
                     </div>
                     <div class="full-table-wrap">
@@ -361,20 +467,42 @@
             </div>
 
             <!-- ============================================== -->
-            <!-- VISTA 5: CONTAS (REGISTRAR / LOGIN)            -->
+            <!-- VISTA 5: CONTAS & CONTROLE DE ACESSO (ADMIN)   -->
             <!-- ============================================== -->
             <div class="view-panel" id="viewContas">
                 <div class="full-view-panel">
                     <div class="panel-header-full">
                         <div>
-                            <h2>🔐 Gerenciar Contas</h2>
-                            <p class="muted">Cadastre e autentique usuários com senhas criptografadas via bcrypt</p>
+                            <h2>🔐 Controle de Acesso Escolar (JWT + RBAC)</h2>
+                            <p class="muted">Autenticação com senhas protegidas por bcrypt e autorização por perfis [admin, secretaria, professor]</p>
                         </div>
                     </div>
 
                     <div class="contas-grid">
 
-                        <!-- CARD: REGISTRAR -->
+                        <!-- CARD: CRACHÁ ATIVO (STATUS) -->
+                        <div class="conta-card" id="cardCrachaAtivo">
+                            <div class="conta-card-header info-header">
+                                <div class="conta-card-icon">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Crachá do Usuário</h3>
+                                    <p class="muted text-xs">Identidade decodificada do JWT</p>
+                                </div>
+                            </div>
+
+                            <div id="crachaConteudo" class="cracha-box">
+                                <p class="muted text-center" style="padding:15px 0;">Nenhum usuário autenticado no momento.</p>
+                            </div>
+                        </div>
+
+                        <!-- CARD: REGISTRAR NOVA CONTA (Apenas Admin) -->
                         <div class="conta-card">
                             <div class="conta-card-header registrar-header">
                                 <div class="conta-card-icon">
@@ -386,89 +514,55 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3>Registrar Conta</h3>
-                                    <p class="muted text-xs">Senha armazenada como hash bcrypt (custo 10)</p>
+                                    <h3>Cadastrar Nova Conta</h3>
+                                    <p class="muted text-xs">🔒 Exclusivo para o cargo <strong>admin</strong></p>
                                 </div>
                             </div>
                             <form id="formRegistrar" class="conta-form">
                                 <div class="form-group">
                                     <label for="registrarNome">Nome Completo <span class="req">*</span></label>
-                                    <input type="text" id="registrarNome" required placeholder="Ex: Maria Silva">
+                                    <input type="text" id="registrarNome" required placeholder="Ex: Lucas Mendes">
                                 </div>
                                 <div class="form-group">
                                     <label for="registrarEmail">E-mail <span class="req">*</span></label>
-                                    <input type="email" id="registrarEmail" required placeholder="maria@email.com">
+                                    <input type="email" id="registrarEmail" required placeholder="lucas@escola.com">
                                 </div>
                                 <div class="form-group">
                                     <label for="registrarSenha">Senha <span class="req">*</span></label>
                                     <input type="password" id="registrarSenha" required placeholder="Mínimo 6 caracteres" minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="registrarCargo">Cargo / Perfil (RBAC) <span class="req">*</span></label>
+                                    <select id="registrarCargo" class="form-select" required>
+                                        <option value="professor">Professor (Leitura geral)</option>
+                                        <option value="secretaria">Secretaria (Alunos & Matrículas)</option>
+                                        <option value="admin">Administrador (Controle Total)</option>
+                                    </select>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block" id="btnRegistrar">Criar Conta</button>
                             </form>
                             <div id="registrarResult" class="conta-result" style="display:none;"></div>
                         </div>
 
-                        <!-- CARD: LOGIN -->
+                        <!-- CARD: LISTA DE CONTAS (Admin) -->
                         <div class="conta-card">
                             <div class="conta-card-header login-header">
                                 <div class="conta-card-icon">
                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                                        <polyline points="10 17 15 12 10 7"/>
-                                        <line x1="15" y1="12" x2="3" y2="12"/>
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3>Login</h3>
-                                    <p class="muted text-xs">bcrypt.compare valida sem revelar a senha original</p>
+                                    <h3>Contas Cadastradas</h3>
+                                    <p class="muted text-xs">Todos os usuários do sistema</p>
                                 </div>
                             </div>
-                            <form id="formLogin" class="conta-form">
-                                <div class="form-group">
-                                    <label for="loginEmail">E-mail <span class="req">*</span></label>
-                                    <input type="email" id="loginEmail" required placeholder="maria@email.com">
-                                </div>
-                                <div class="form-group">
-                                    <label for="loginSenha">Senha <span class="req">*</span></label>
-                                    <input type="password" id="loginSenha" required placeholder="Sua senha">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block" id="btnLogin">Entrar</button>
-                            </form>
-                            <div id="loginResult" class="conta-result" style="display:none;"></div>
-                        </div>
-
-                        <!-- CARD: INFO BCRYPT -->
-                        <div class="conta-card bcrypt-info-card">
-                            <div class="conta-card-header info-header">
-                                <div class="conta-card-icon">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3>Como o bcrypt protege</h3>
-                                    <p class="muted text-xs">Hash irreversível com Salt automático</p>
-                                </div>
+                            <div id="listaContasContainer" class="contas-list-container">
+                                <p class="muted text-center" style="padding:15px 0;">Carregando contas...</p>
                             </div>
-                            <div class="bcrypt-anatomy">
-                                <div class="anatomy-label">Anatomia do Hash gerado:</div>
-                                <div class="anatomy-hash">
-                                    <span class="hash-part version">$2b$</span><span class="hash-part cost">10$</span><span class="hash-part salt">wE3xK9mNpQ7rT2yU</span><span class="hash-part digest">AbCdEfGhIjKlMnOpQrStUv</span>
-                                </div>
-                                <div class="anatomy-legend">
-                                    <span><span class="dot version"></span>Versão</span>
-                                    <span><span class="dot cost"></span>Custo</span>
-                                    <span><span class="dot salt"></span>Salt (22 chars)</span>
-                                    <span><span class="dot digest"></span>Hash Final</span>
-                                </div>
-                            </div>
-                            <ul class="bcrypt-tips">
-                                <li>🔒 <strong>Irreversível:</strong> ninguém consegue reverter o hash</li>
-                                <li>🧂 <strong>Salt único:</strong> mesma senha → hashes diferentes</li>
-                                <li>🐢 <strong>Custo 10:</strong> lento por design, frustra ataques de força bruta</li>
-                                <li>🌈 <strong>Rainbow Tables:</strong> inúteis graças ao salt automático</li>
-                            </ul>
                         </div>
 
                     </div>
@@ -583,6 +677,258 @@
     <div class="toast-shelf" id="toastShelf"></div>
 
     <style>
+    /* ===== LOGIN SCREEN ===== */
+    .login-screen {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: var(--bg-base, #070a13);
+    }
+
+    .login-bg-effects {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .login-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.35;
+    }
+    .orb-1 { width: 500px; height: 500px; background: #6366f1; top: -15%; left: -10%; animation: floatOrb1 12s ease-in-out infinite; }
+    .orb-2 { width: 400px; height: 400px; background: #10b981; bottom: -10%; right: -5%; animation: floatOrb2 15s ease-in-out infinite; }
+    .orb-3 { width: 300px; height: 300px; background: #f59e0b; top: 50%; left: 60%; animation: floatOrb3 10s ease-in-out infinite; }
+
+    @keyframes floatOrb1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(40px, 30px); } }
+    @keyframes floatOrb2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-30px, -20px); } }
+    @keyframes floatOrb3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, 25px); } }
+
+    .login-container {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        padding: 40px 24px;
+        width: 100%;
+        max-width: 460px;
+        animation: loginFadeIn 0.6s ease-out;
+    }
+
+    @keyframes loginFadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-branding {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .login-logo-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 18px;
+        background: var(--brand-gradient, linear-gradient(135deg, #6366f1, #4338ca));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
+        animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+        0%, 100% { box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35); }
+        50%      { box-shadow: 0 8px 45px rgba(99, 102, 241, 0.55); }
+    }
+
+    .login-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #f1f5f9;
+        letter-spacing: -0.03em;
+    }
+    .login-title span { color: #818cf8; }
+
+    .login-subtitle {
+        font-size: 14px;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .login-card {
+        width: 100%;
+        background: rgba(16, 24, 40, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-card-header h2 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .login-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .login-field label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .login-field input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: #f1f5f9;
+        font-size: 14px;
+        font-family: var(--font-sans);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .login-field input:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .login-field input::placeholder { color: #475569; }
+
+    .login-submit-btn {
+        width: 100%;
+        padding: 13px 20px;
+        background: var(--brand-gradient, linear-gradient(135deg, #6366f1, #4338ca));
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: var(--font-sans);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: transform 0.15s, box-shadow 0.2s;
+        box-shadow: 0 4px 18px rgba(99, 102, 241, 0.3);
+    }
+    .login-submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.45);
+    }
+    .login-submit-btn:active {
+        transform: translateY(0);
+    }
+    .login-submit-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .login-error {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #f87171;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Quick Access Buttons */
+    .login-quick-access {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+    .quick-access-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+    }
+    .quick-access-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+    }
+    .quick-access-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 6px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+        transition: all 0.2s;
+        color: inherit;
+        font-family: var(--font-sans);
+    }
+    .quick-access-btn:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        background: rgba(99, 102, 241, 0.08);
+        transform: translateY(-2px);
+    }
+    .qa-icon { font-size: 22px; }
+    .qa-info { text-align: center; }
+    .qa-info strong { display: block; font-size: 11.5px; font-weight: 700; }
+    .qa-info small { font-size: 10px; color: #64748b; }
+
+    .qa-admin:hover { border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.08); }
+    .qa-secretaria:hover { border-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.08); }
+    .qa-professor:hover { border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.08); }
+
+    .login-footer-text {
+        font-size: 12px;
+        color: #475569;
+    }
+    .login-footer-text code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        color: #818cf8;
+    }
+
     /* ===== CONTAS VIEW ===== */
     .contas-grid {
         display: grid;
@@ -646,24 +992,172 @@
     .conta-result.success { background: rgba(16,185,129,.15); border: 1px solid rgba(52,211,153,.3); color: #34d399; }
     .conta-result.error   { background: rgba(239,68,68,.12);  border: 1px solid rgba(239,68,68,.3);  color: #f87171; }
 
-    /* Anatomy */
-    .bcrypt-anatomy { background: rgba(0,0,0,.25); border-radius: 8px; padding: 14px; }
-    .anatomy-label { font-size: 11px; opacity: .55; margin-bottom: 8px; }
-    .anatomy-hash  { font-family: var(--font-mono, monospace); font-size: 12px; word-break: break-all; line-height: 1.6; }
-    .hash-part.version { color: #818cf8; }
-    .hash-part.cost    { color: #fbbf24; }
-    .hash-part.salt    { color: #34d399; }
-    .hash-part.digest  { color: #f87171; }
-    .anatomy-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; opacity: .75; }
-    .anatomy-legend span { display: flex; align-items: center; gap: 4px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .dot.version { background: #818cf8; }
-    .dot.cost    { background: #fbbf24; }
-    .dot.salt    { background: #34d399; }
-    .dot.digest  { background: #f87171; }
+    /* Contas List */
+    .contas-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 380px;
+        overflow-y: auto;
+    }
+    .conta-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: rgba(255,255,255,.03);
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 8px;
+        transition: background .15s;
+    }
+    .conta-list-item:hover { background: rgba(255,255,255,.06); }
+    .conta-list-info { display: flex; flex-direction: column; gap: 2px; }
+    .conta-list-info strong { font-size: 13px; }
+    .conta-list-info span { font-size: 11px; color: #94a3b8; }
 
-    .bcrypt-tips { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
-    .bcrypt-tips li { font-size: 12.5px; opacity: .85; }
+    /* Quick Login Buttons */
+    .quick-login-box {
+        background: rgba(0,0,0,0.25);
+        border: 1px dashed var(--border, rgba(255,255,255,0.12));
+        border-radius: 8px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .quick-login-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #818cf8;
+    }
+    .quick-login-buttons {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .btn-admin { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; }
+    .btn-admin:hover { background: rgba(239, 68, 68, 0.35); }
+    .btn-secretaria { background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; }
+    .btn-secretaria:hover { background: rgba(245, 158, 11, 0.35); }
+    .btn-professor { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; }
+    .btn-professor:hover { background: rgba(59, 130, 246, 0.35); }
+
+    /* Crachá Box */
+    .cracha-box {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .cracha-card-visual {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 10px;
+        padding: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .cracha-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .badge-cargo-tag {
+        font-size: 10.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 999px;
+        letter-spacing: 0.05em;
+    }
+    .badge-cargo-admin { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); }
+    .badge-cargo-secretaria { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+    .badge-cargo-professor { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.5); }
+
+    .cracha-info-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 12px;
+    }
+    .cracha-info-row strong { color: #fff; font-size: 14px; }
+    .cracha-info-row span { color: var(--text-muted, #94a3b8); }
+    .cracha-permissoes {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+    /* Navbar User Profile Area */
+    .user-profile-slot {
+        display: flex;
+        align-items: center;
+    }
+    .user-profile-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11.5px;
+    }
+    .user-avatar-sm {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--brand-gradient, #6366f1);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 10px;
+    }
+    .btn-logout {
+        background: transparent;
+        border: none;
+        color: var(--text-muted, #94a3b8);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 2px 4px;
+        border-radius: 4px;
+        transition: color 0.15s ease;
+    }
+    .btn-logout:hover { color: #f87171; }
+
+    /* ===== PERMISSÃO VISUAL: OCULTAR ELEMENTOS POR CARGO ===== */
+    .rbac-hidden { display: none !important; }
+
+    /* Ribbon de Permissões */
+    .permission-ribbon {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .perm-tag {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+    }
+    .perm-tag.allow { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .perm-tag.deny  { background: rgba(239, 68, 68, 0.1); color: #94a3b8; border: 1px solid rgba(255,255,255,0.06); text-decoration: line-through; opacity: 0.5; }
+
+    /* Transition para o sistema principal */
+    .app-container.fade-in {
+        animation: systemFadeIn 0.4s ease-out;
+    }
+    @keyframes systemFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
     </style>
 
     <script src="app.js"></script>

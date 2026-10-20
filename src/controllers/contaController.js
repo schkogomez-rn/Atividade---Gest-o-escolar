@@ -2,78 +2,139 @@ const ContaRepository = require('../repositories/contaRepository');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Cargos permitidos no sistema escolar
+const CARGOS_PERMITIDOS = ['admin', 'secretaria', 'professor'];
+
 // ============================================================
-// CONTROLADOR: Contas
+// CONTROLADOR: Contas (RBAC: Gestão de Usuários e Autenticação)
 // ============================================================
 
-// ✅ O COFRE: Rota de Cadastro
-// Recebe a senha em texto limpo, gera o hash e salva apenas o hash.
+// 1. CADASTRAR: Apenas administradores (ou criação autorizada)
 const registrar = async (req, res) => {
-    const { nome, email, senha } = req.body;
+    try {
+        const { nome, email, senha, cargo } = req.body;
 
-    // 1. Verifica se o e-mail já está cadastrado
-    const contaExistente = await ContaRepository.buscarContaPorEmail(email);
-    if (contaExistente) {
-        return res.status(400).json({ mensagem: 'Email já cadastrado.' });
+        if (!nome || !email || !senha) {
+            return res.status(400).json({ mensagem: 'Nome, email e senha são obrigatórios.' });
+        }
+
+        // Valida se o cargo informado é permitido
+        const cargoDefinido = cargo || 'professor';
+        if (!CARGOS_PERMITIDOS.includes(cargoDefinido)) {
+            return res.status(400).json({ 
+                mensagem: `Cargo inválido. Valores permitidos: [${CARGOS_PERMITIDOS.join(', ')}]` 
+            });
+        }
+
+        // Verifica se o e-mail já está cadastrado
+        const contaExistente = await ContaRepository.buscarContaPorEmail(email);
+        if (contaExistente) {
+            return res.status(409).json({ mensagem: 'Este email já está cadastrado.' });
+        }
+
+        // Criptografa a senha antes de salvar
+        const senha_hash = await bcrypt.hash(senha, 10);
+
+        // Salva no banco enviando o HASH e o CARGO
+        const novaConta = await ContaRepository.criarConta(nome, email, senha_hash, cargoDefinido);
+
+        return res.status(201).json(novaConta);
+    } catch (erro) {
+        console.error('Erro ao cadastrar conta:', erro);
+        return res.status(500).json({ mensagem: 'Erro interno ao criar conta.' });
     }
-
-    // 2. Criptografa a senha com custo 10
-    //    O bcrypt gera um Salt aleatório e o incorpora no hash final.
-    const senha_hash = await bcrypt.hash(senha, 10);
-
-    // 3. Salva no banco enviando o HASH — nunca a senha em texto limpo
-    const novaConta = await ContaRepository.criarConta(nome, email, senha_hash);
-
-    res.status(201).json(novaConta);
 };
 
-// 🚪 A PORTARIA: Rota de Login
-// Compara a senha digitada com o hash armazenado no banco.
+// 2. LOGIN: Todos podem fazer
 const login = async (req, res) => {
-    const { email, senha } = req.body;
+    try {
+        const { email, senha } = req.body;
 
-    // 1. Busca se o e-mail existe no banco
-    const contaEncontrada = await ContaRepository.buscarContaPorEmail(email);
-    if (!contaEncontrada) {
-        // Por segurança, não informamos qual campo está errado
-        return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
+        if (!email || !senha) {
+            return res.status(400).json({ mensagem: 'Email e senha são obrigatórios.' });
+        }
+
+        // Procura a conta pelo e-mail
+        const conta = await ContaRepository.buscarContaPorEmail(email);
+        if (!conta) {
+            return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
+        }
+
+        // Confere a senha com o hash do banco
+        const senhaValida = await bcrypt.compare(senha, conta.senha_hash);
+        if (!senhaValida) {
+            return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
+        }
+
+        // 💡 PONTO CHAVE: Gravamos o ID e o CARGO dentro do Crachá (Token) JWT!
+        // Assim a API sempre saberá quem é o usuário e qual o cargo dele em cada requisição.
+        const token = jwt.sign(
+            { id: conta.id, cargo: conta.cargo }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
+
+        return res.json({
+            mensagem: 'Login realizado com sucesso!',
+            token: token
+        });
+    } catch (erro) {
+        console.error('Erro no login:', erro);
+        return res.status(500).json({ mensagem: 'Erro interno ao realizar login.' });
     }
-
-    // 2. Compara a senha digitada com o hash do banco
-    //    O bcrypt extrai o Salt automaticamente do hash armazenado
-    const senhaValida = await bcrypt.compare(senha, contaEncontrada.senha_hash);
-
-    if (!senhaValida) {
-        return res.status(401).json({ mensagem: 'Credenciais inválidas.' });
-    }
-
-    // 3. A EMISSÃO DO CRACHÁ (Token JWT)
-    // O primeiro parâmetro é o "Payload" (o que vai escrito no crachá. Ex: o ID do usuário).
-    // O segundo é o carimbo oficial guardado no .env.
-    // O terceiro é a validade do crachá (ex: expira em 1 hora).
-    const token = jwt.sign(
-        { id: contaEncontrada.id }, 
-        process.env.JWT_SECRET, 
-        { expiresIn: '10h' }
-    );
-
-    // Agora devolvemos o crachá para o usuário guardar no bolso (front-end)
-    res.json({ 
-        mensagem: 'Login realizado com sucesso!', 
-        token: token 
-    });
 };
 
-// 🔒 SALA RESTRITA: Rota de Perfil
+// 3. PERFIL: O usuário logado vê seus próprios dados
 const verPerfil = async (req, res) => {
-    // O segurança (middleware) já fez o trabalho duro e pendurou o ID do usuário no "req"
-    const id = req.usuario_id;
-    
-    // Busca os dados completos no banco (reaproveitando a função do repositório)
-    const dadosUsuario = await ContaRepository.buscarContaPorId(id);
-    
-    res.json(dadosUsuario);
+    try {
+        // O ID foi colocado no 'req' pelo authMiddleware
+        const id = req.usuario_id;
+        const usuario = await ContaRepository.buscarContaPorId(id);
+
+        if (!usuario) {
+            return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        }
+
+        return res.json(usuario);
+    } catch (erro) {
+        console.error('Erro ao buscar perfil:', erro);
+        return res.status(500).json({ mensagem: 'Erro ao buscar perfil.' });
+    }
 };
 
-module.exports = { registrar, login, verPerfil };
+// 4. LISTAR: Apenas Administrador
+const listar = async (req, res) => {
+    try {
+        const contas = await ContaRepository.listarContas();
+        return res.json(contas);
+    } catch (erro) {
+        console.error('Erro ao listar contas:', erro);
+        return res.status(500).json({ mensagem: 'Erro interno ao listar contas.' });
+    }
+};
 
+// 5. REMOVER: Apenas Administrador
+const remover = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const contaRemovida = await ContaRepository.removerConta(id);
+        if (!contaRemovida) {
+            return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        }
+        return res.status(200).json({ mensagem: 'Conta removida com sucesso.', conta: contaRemovida });
+    } catch (erro) {
+        console.error('Erro ao remover conta:', erro);
+        return res.status(500).json({ mensagem: 'Erro interno ao remover conta.' });
+    }
+};
+
+module.exports = { 
+    registrar, 
+    login, 
+    verPerfil, 
+    listar, 
+    remover,
+    // Aliases para máxima compatibilidade
+    criarUsuario: registrar,
+    me: verPerfil
+};

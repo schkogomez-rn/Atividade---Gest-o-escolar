@@ -1,27 +1,28 @@
 const { Router } = require('express');
 const turmaController = require('../controllers/turmaController');
 
+// Importa os dois seguranças (Middlewares)
+const authMiddleware = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
+
 // ============================================================
-// CAMADA DE ROTAS - Turmas (Matrículas)
-// Responsabilidade: mapear as URLs HTTP para os controllers.
-// NÃO contém lógica de negócio.
+// CAMADA DE ROTAS - Turmas / Matrículas (Protegidas por RBAC)
 // ============================================================
 
 const router = Router();
 
-// GET    /turmas              → Lista todas as matrículas (paginação)
-// POST   /turmas              → Realiza uma matrícula (REGRA DE OURO)
-// GET    /turmas/:id          → Busca matrícula por ID
-// DELETE /turmas/:id          → Cancela matrícula por ID
-// GET    /turmas/aluno/:alunoId → Lista matrículas de um aluno específico
+// Todas as rotas de turmas exigem autenticação (1º Segurança)
+router.use(authMiddleware);
 
-// ⚠️  ATENÇÃO: A rota estática /aluno/:alunoId deve vir ANTES de /:id
-// para evitar que o Express interprete "aluno" como um ID numérico.
+// --- Consulta: Qualquer usuário com crachá válido (admin, secretaria, professor) ---
 router.get('/aluno/:alunoId', turmaController.listarTurmasPorAluno);
+router.get('/',               turmaController.listarTurmas);
+router.get('/:id',            turmaController.buscarTurma);
 
-router.get('/',     turmaController.listarTurmas);
-router.post('/',    turmaController.matricularAluno);
-router.get('/:id',  turmaController.buscarTurma);
-router.delete('/:id', turmaController.cancelarMatricula);
+// --- Matrícula: Permitido para 'admin' e 'secretaria' ---
+router.post('/',              roleMiddleware('admin', 'secretaria'), turmaController.matricularAluno);
+
+// --- Cancelamento de Matrícula: Exclusivo para 'admin' ---
+router.delete('/:id',         roleMiddleware('admin'), turmaController.cancelarMatricula);
 
 module.exports = router;

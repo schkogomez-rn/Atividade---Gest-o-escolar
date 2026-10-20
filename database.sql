@@ -1,5 +1,5 @@
 -- ============================================================
--- SCRIPT DE SETUP DO BANCO DE DADOS - Gestão Escolar
+-- SCRIPT DE SETUP DO BANCO DE DADOS - Gestão Escolar (com RBAC)
 -- Execute este script no PostgreSQL para criar as tabelas
 -- e inserir os dados de teste (mock).
 -- ============================================================
@@ -14,13 +14,15 @@ DROP TABLE IF EXISTS cursos CASCADE;
 DROP TABLE IF EXISTS contas CASCADE;
 
 -- ============================================================
--- TABELA: contas (autenticação com bcrypt)
+-- TABELA: contas (Usuários com Autenticação JWT e RBAC)
 -- ============================================================
 CREATE TABLE contas (
     id          SERIAL PRIMARY KEY,
     nome        VARCHAR(100) NOT NULL,
     email       VARCHAR(100) UNIQUE NOT NULL,
-    senha_hash  VARCHAR(255) NOT NULL
+    senha_hash  VARCHAR(255) NOT NULL,
+    cargo       VARCHAR(20) NOT NULL DEFAULT 'professor', -- 'admin', 'secretaria' ou 'professor'
+    criado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================================
@@ -54,6 +56,16 @@ CREATE TABLE turmas (
     data_matricula TIMESTAMP DEFAULT NOW(),
     UNIQUE (aluno_id, curso_id)  -- Um aluno não pode se matricular duas vezes no mesmo curso
 );
+
+-- ============================================================
+-- SEED DE USUÁRIOS (Carga Inicial - RBAC)
+-- Senha de todos os usuários abaixo: "senha123"
+-- Gerada via terminal: node -e "require('bcrypt').hash('senha123', 10).then(console.log)"
+-- ============================================================
+INSERT INTO contas (nome, email, senha_hash, cargo) VALUES 
+('Administrador', 'admin@escola.com', '$2b$10$DpylyF1YhUzVV0rvokJ8O.SDPjYjOh57zEvkn.MtXMAVbyNH9Gr4e', 'admin'),
+('Secretaria Escolar', 'secretaria@escola.com', '$2b$10$DpylyF1YhUzVV0rvokJ8O.SDPjYjOh57zEvkn.MtXMAVbyNH9Gr4e', 'secretaria'),
+('Professor Pardal', 'professor@escola.com', '$2b$10$DpylyF1YhUzVV0rvokJ8O.SDPjYjOh57zEvkn.MtXMAVbyNH9Gr4e', 'professor');
 
 -- ============================================================
 -- DADOS DE TESTE: Cursos
